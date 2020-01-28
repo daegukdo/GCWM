@@ -85,23 +85,36 @@ class Apple:
         draw_block(screen, self.color, self.position)
 
 
+class PoisonApple(Apple):
+    """독사과 클래스"""
+    color = BLUE  # 사과의 색
+
+    def __init__(self, position=(random.randint(2, 21), random.randint(0, 19))):
+        self.position = position  # 독사과의 위치
+
+
 class GameBoard:
     """게임판 클래스"""
-    width = 20       # 게임판의 너비
-    height = 20      # 게임판의 높이
-    speed = 0.3      # 게임의 속도 (second)
-    point = 0        # 사과를 먹은 개수
+    width = 20         # 게임판의 너비
+    height = 20        # 게임판의 높이
+    speed = 0.3        # 게임의 속도 (second)
+    point = 0          # 사과를 먹은 개수
+    poison_point = 0   # 독사과를 먹은 개수
 
     def __init__(self):
-        self.snake = Snake()  # 게임판 위의 뱀
-        self.apple = Apple()  # 게임판 위의 사과
-        self.speed = 0.3      # 게임의 속도 (second)
-        self.point = 0        # 사과를 먹은 개수
+        self.snake = Snake()               # 게임판 위의 뱀
+        self.apple = Apple()               # 게임판 위의 사과
+        self.poison_apple = PoisonApple()  # 게임판 위의 독사과
+        self.speed = 0.3                   # 게임의 속도 (second)
+        self.point = 0                     # 사과를 먹은 개수
 
     def draw(self, screen):
         """화면에 게임판의 구성요소를 그린다."""
-        self.apple.draw(screen)  # 게임판 위의 사과를 그린다
-        self.snake.draw(screen)  # 게임판 위의 뱀을 그린다
+        self.apple.draw(screen)             # 게임판 위의 사과를 그린다
+        self.snake.draw(screen)             # 게임판 위의 뱀을 그린다
+        if self.point >= 6.0:               # 점수가 6점보다 높다면
+            self.poison_apple.draw(screen)  # 게임판 위의 독사과를 그린다
+            self.put_new_poison_apple()     # 독사과를 새로 놓는다
 
     def put_new_apple(self):
         """게임판에 새 사과를 놓는다."""
@@ -111,9 +124,22 @@ class GameBoard:
                 self.put_new_apple()             # 사과를 새로 놓는다
                 break
 
+    def put_new_poison_apple(self):
+        """게임판에 새 독사과를 놓는다."""
+        self.poison_apple = PoisonApple((random.randint(2, 21), random.randint(0, 19)))
+        for position in self.snake.positions:    # 뱀 블록을 순회하면서
+            if self.poison_apple.position == position:  # 독사과가 뱀 위치에 놓인 경우를 확인해
+                self.put_new_poison_apple()             # 독사과를 새로 놓는다
+                break
+
     def update_point(self):
         """점수를 증가시킨다."""
         self.point = self.point + 1  # 점수를 올린다
+
+    def down_point(self):
+        """점수를 감소시킨다."""
+        self.point = self.point - 1  # 점수를 낮춘다
+        self.poison_point = self.poison_point + 1  # 점수를 올린다
 
     def update_speed(self):
         """속도를 증가시킨다."""
@@ -126,12 +152,21 @@ class GameBoard:
 
         # 뱀의 머리와 사과가 닿았으면
         if self.snake.positions[0] == self.apple.position:
-            self.snake.grow()  # 뱀을 한 칸 자라게 한다
-            self.put_new_apple()  # 사과를 새로 놓는다
-            self.update_point()  # 점수를 올린다
+            self.snake.grow()                   # 뱀을 한 칸 자라게 한다
+            self.put_new_apple()                # 사과를 새로 놓는다
+            self.update_point()                 # 점수를 올린다
 
-            if self.point % 3.0 == 0.0:  # 점수가 3점 증가한 시점이라면
-                self.update_speed()  # 속도를 올린다
+            if self.point % 3.0 == 0.0:         # 점수가 3점 증가한 시점이라면
+                self.update_speed()             # 속도를 올린다
+
+        # 뱀의 머리와 독사과가 닿았으면
+        if self.snake.positions[0] == self.poison_apple.position:
+            self.put_new_poison_apple()         # 독사과를 새로 놓는다
+            self.down_point()                   # 점수를 올린다
+
+        # 뱀이 독사과를 3개 먹었다면
+        if self.poison_point == 3:
+            raise SnakeDeathException()  # 뱀 사망 예외를 일으킨다
 
         # 뱀의 머리가 뱀의 몸과 부딛혔으면
         if self.snake.positions[0] in self.snake.positions[1:]:
@@ -158,6 +193,11 @@ class SnakeOutException(Exception):
     pass
 
 
+class SnakeDeathException(Exception):
+    """뱀 사망 예외"""
+    pass
+
+
 def draw_background(screen):
     """게임의 배경을 그린다."""
     background = pygame.Rect((0, 40), (SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -174,7 +214,7 @@ def draw_block(screen, color, position):
 def update_points(field, point):
     font = pygame.font.Font(None, 30)
     input_box = pygame.Rect((0, 0), (SCREEN_WIDTH, 40))
-    pygame.draw.rect(screen, BLACK, input_box)
+    pygame.draw.rect(field, BLACK, input_box)
     txt_surface = font.render("Points : " + str(point), True, pygame.Color('lightskyblue3'))
     field.blit(txt_surface, (input_box.x + 10, input_box.y + 10))
 
@@ -225,6 +265,8 @@ while True:
         except SnakeCollisionException:
             exit()
         except SnakeOutException:
+            exit()
+        except SnakeDeathException:
             exit()
         last_turn_time = datetime.now()
 
