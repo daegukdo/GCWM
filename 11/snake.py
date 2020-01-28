@@ -88,19 +88,15 @@ class Apple:
 class PoisonApple(Apple):
     """독사과 클래스"""
     color = BLUE             # 독사과의 색
-    num_of_poison_apple = 1  # 독사과의 개수
+    num_of_poison_apple = 0  # 독사과의 개수
     past_point = 0
     positions = []           # 독사과의 위치들
 
     def __init__(self, point):
-        self.set_poison_apple(point)
+        self.positions = []
+        self.num_of_poison_apple = point
         for i in range(self.num_of_poison_apple):
             self.positions.append((random.randint(2, 21), random.randint(0, 19)))  # 독사과의 위치들
-
-    def set_poison_apple(self, point):
-        self.positions = []
-        self.past_point = point
-        self.num_of_poison_apple = int(point/2)
 
     def add_poison_apple(self, screen):
         """독사과들을 화면에 그린다."""
@@ -109,11 +105,12 @@ class PoisonApple(Apple):
 
 class GameBoard:
     """게임판 클래스"""
-    width = 20         # 게임판의 너비
-    height = 20        # 게임판의 높이
-    speed = 0.3        # 게임의 속도 (second)
-    point = 0          # 사과를 먹은 개수
-    poison_point = 0   # 독사과를 먹은 개수
+    width = 20                    # 게임판의 너비
+    height = 20                    # 게임판의 높이
+    speed = 0.3                    # 게임의 속도 (second)
+    point = 0                     # 사과를 먹은 개수
+    poison_point = 0          # 독사과를 먹은 개수
+    poison_apple_on = False
 
     def __init__(self):
         self.snake = Snake()                            # 게임판 위의 뱀
@@ -126,9 +123,7 @@ class GameBoard:
         """화면에 게임판의 구성요소를 그린다."""
         self.apple.draw(screen)                                                             # 게임판 위의 사과를 그린다
         self.snake.draw(screen)                                                             # 게임판 위의 뱀을 그린다
-        if (self.point >= 2.0) & (self.point != self.poison_apple.past_point):              # 점수가 2점보다 높다면
-            self.poison_apple.add_poison_apple(screen)                                      # 게임판 위의 독사과를 그린다
-            self.put_new_poison_apple()                                                     # 독사과를 새로 놓는다
+        self.poison_apple.add_poison_apple(screen)                                      # 게임판 위의 독사과를 그린다
 
     def put_new_apple(self):
         """게임판에 새 사과를 놓는다."""
@@ -173,11 +168,12 @@ class GameBoard:
             if self.point % 3.0 == 0.0:         # 점수가 3점 증가한 시점이라면
                 self.update_speed()             # 속도를 올린다
 
+            self.poison_apple = PoisonApple(self.point)
+
         # 뱀의 머리와 독사과가 닿았으면
-        if(self.poison_apple.num_of_poison_apple >= 2):
-            if self.snake.positions[0] in self.poison_apple.positions[:]:
-                self.put_new_poison_apple()         # 독사과를 새로 놓는다
-                self.down_point()                   # 점수를 낮춘다
+        if self.snake.positions[0] in self.poison_apple.positions:
+            self.put_new_poison_apple()         # 독사과를 새로 놓는다
+            self.down_point()                   # 점수를 낮춘다
 
         # 뱀이 독사과를 3개 먹었다면
         if self.poison_point == 3:
