@@ -89,7 +89,6 @@ class PoisonApple(Apple):
     """독사과 클래스"""
     color = BLUE             # 독사과의 색
     num_of_poison_apple = 0  # 독사과의 개수
-    past_point = 0
     positions = []           # 독사과의 위치들
 
     def __init__(self, point):
@@ -105,11 +104,11 @@ class PoisonApple(Apple):
 
 class GameBoard:
     """게임판 클래스"""
-    width = 20                    # 게임판의 너비
+    width = 20                     # 게임판의 너비
     height = 20                    # 게임판의 높이
     speed = 0.3                    # 게임의 속도 (second)
-    point = 0                     # 사과를 먹은 개수
-    poison_point = 0          # 독사과를 먹은 개수
+    point = 0                      # 사과를 먹은 개수
+    poison_point = 0               # 독사과를 먹은 개수
     poison_apple_on = False
 
     def __init__(self):
@@ -121,9 +120,9 @@ class GameBoard:
 
     def draw(self, screen):
         """화면에 게임판의 구성요소를 그린다."""
-        self.apple.draw(screen)                                                             # 게임판 위의 사과를 그린다
-        self.snake.draw(screen)                                                             # 게임판 위의 뱀을 그린다
-        self.poison_apple.add_poison_apple(screen)                                      # 게임판 위의 독사과를 그린다
+        self.apple.draw(screen)                         # 게임판 위의 사과를 그린다
+        self.snake.draw(screen)                         # 게임판 위의 뱀을 그린다
+        self.poison_apple.add_poison_apple(screen)      # 게임판 위의 독사과를 그린다
 
     def put_new_apple(self):
         """게임판에 새 사과를 놓는다."""
@@ -136,18 +135,18 @@ class GameBoard:
     def put_new_poison_apple(self):
         """게임판에 새 독사과를 놓는다."""
         self.poison_apple = PoisonApple(self.point)
-        for position in self.snake.positions:    # 뱀 블록을 순회하면서
+        for position in self.snake.positions:            # 뱀 블록을 순회하면서
             if self.poison_apple.positions == position:  # 독사과가 뱀 위치에 놓인 경우를 확인해
-                self.put_new_poison_apple()             # 독사과를 새로 놓는다
+                self.put_new_poison_apple()              # 독사과를 새로 놓는다
                 break
 
     def update_point(self):
         """점수를 증가시킨다."""
-        self.point = self.point + 1  # 점수를 올린다
+        self.point = self.point + 1                # 점수를 올린다
 
     def down_point(self):
         """점수를 감소시킨다."""
-        self.point = self.point - 1  # 점수를 낮춘다
+        self.point = self.point - 1                # 점수를 낮춘다
         self.poison_point = self.poison_point + 1  # 점수를 올린다
 
     def update_speed(self):
@@ -229,6 +228,41 @@ def update_points(field, point):
     txt_surface = font.render("Points : " + str(point), True, pygame.Color('lightskyblue3'))
     field.blit(txt_surface, (input_box.x + 10, input_box.y + 10))
 
+
+def play_again():
+    text = bigfont.render('Play again?', 13, (0, 0, 0))
+    textx = SCREEN_WIDTH / 2 - text.get_width() / 2
+    texty = SCREEN_HEIGHT / 2 - text.get_height() / 2
+    textx_size = text.get_width()
+    texty_size = text.get_height()
+    pygame.draw.rect(screen, (255, 255, 255), ((textx - 5, texty - 5),
+                                               (textx_size + 10, texty_size +
+                                                10)))
+
+    screen.blit(text, (SCREEN_WIDTH / 2 - text.get_width() / 2,
+                       SCREEN_HEIGHT / 2 - text.get_height() / 2))
+
+    clock = pygame.time.Clock()
+    pygame.display.flip()
+    in_main_menu = True
+    while in_main_menu:
+        clock.tick(50)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                in_main_menu = False
+                pygame.display.quit()
+                pygame.quit()
+                quit()
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                x, y = event.pos
+                if x >= textx - 5 and x <= textx + textx_size + 5:
+                    if y >= texty - 5 and y <= texty + texty_size + 5:
+                        in_main_menu = False
+                        break
+
+    return True
+
+
 pygame.init()
 
 # 지정한 크기의 게임 화면 창을 연다.
@@ -243,6 +277,10 @@ pygame.display.update()
 
 block_position = [0, 0]  # 블록의 위치 (y, x)
 last_moved_time = datetime.now()  # 마지막으로 블록을 움직인 때
+
+# font 정의
+bigfont = pygame.font.Font(None, 80)
+smallfont = pygame.font.Font(None, 45)
 
 # 종료 이벤트가 발생할 때까지 게임을 계속 진행한다
 # 방향키 입력에 따라 바꿀 블록의 방향
@@ -274,11 +312,14 @@ while True:
             update_points(screen, game_board.point)
             game_board.process_turn()
         except SnakeCollisionException:
-            exit()
+            if play_again():
+                game_board = GameBoard()
         except SnakeOutException:
-            exit()
+            if play_again():
+                game_board = GameBoard()
         except SnakeDeathException:
-            exit()
+            if play_again():
+                game_board = GameBoard()
         last_turn_time = datetime.now()
 
     draw_background(screen)
