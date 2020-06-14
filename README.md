@@ -1,4 +1,7 @@
 # GCWM  
+
+[![HitCount](http://hits.dwyl.com/daegukdo/GCWM.svg)](http://hits.dwyl.com/daegukdo/GCWM)  
+
  - Get Coding With Me!  
 
 ## reference  
@@ -8,5 +11,3 @@
  > https://python.bakyeono.net/index.html  
  
  - 파이썬을 처음 접하는 사람들을 위해 공부하며 설명하기 위해 작성한 자료  
-
- > [![HitCount](http://hits.dwyl.com/daegukdo/GCWM.svg)](http://hits.dwyl.com/daegukdo/GCWM)  
