@@ -57,3 +57,5 @@
  29. COVID 19 projects  
  30. JavaScript 시작하기와 개념 / JavaScript의 개발 환경  
  31. JavaScript의 variable과 type  
+ 32. JavaScript의 operator  
+ 33. JavaScript의 제어문  
