@@ -4,8 +4,8 @@ var cat = "나비"; // 일반적인 변수의 선언
 // 객체도 많은 값을 가지는 변수의 하나임.
 var kitty = { name: "나비", family: "코리안 숏 헤어", age: 1, weight: 0.1 };
 
-cat          // 나비
-kitty.name   // 나비
+console.log(cat);          // 나비
+console.log(kitty.name);   // 나비
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -18,8 +18,8 @@ var person = {
     }
 };
 
-person.name    // 홍길동
-person["name"] // 홍길동
+console.log(person.name);    // 홍길동
+console.log(person["name"]); // 홍길동
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -32,8 +32,8 @@ var person = {
     }
 };
 
-person.fullId() // 0302191234567
-person.fullId;  // function () { return this.birthday + this.pId; } 
+console.log(person.fullId()); // 0302191234567
+console.log(person.fullId);  // function () { return this.birthday + this.pId; } 
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -59,10 +59,10 @@ var obj = Object.create(null, {             // null 프로토타입을 사용하
     y: { value: 200, enumerable: true }     // y좌표를 나타내는 열거할 수 있는 프로퍼티를 추가함.
 });
 
-obj.x;                      // x좌표
-obj.y;                      // y좌표 
+console.log(obj.x);                      // x좌표
+console.log(obj.y);                      // y좌표 
 
-Object.getPrototypeOf(obj); // 객체의 프로토타입을 반환해 줌.
+console.log(Object.getPrototypeOf(obj)); // 객체의 프로토타입을 반환해 줌.
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -208,9 +208,9 @@ function Dog(color, name, age, family) {
 
 var myDog = new Dog("검정색", "곰", 3, "불독");
 
-myDog.hasOwnProperty("color"); // true
-myDog.hasOwnProperty("breed"); // true
-myDog.hasOwnProperty("class"); // 상속받은 프로퍼티이므로, false를 반환함.
+console.log(myDog.hasOwnProperty("color")); // true
+console.log(myDog.hasOwnProperty("breed")); // true
+console.log(myDog.hasOwnProperty("class")); // 상속받은 프로퍼티이므로, false를 반환함.
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -256,9 +256,9 @@ var bool = false;               // 불리언
 
 function func() { return 0; }   // 함수
 
-arr.toString();  // 10,문자열,true
-bool.toString(); // false
-func.toString(); // 함수의 소스 코드가 전부 문자열로 반환됨.
+console.log(arr.toString());  // 10,문자열,true
+console.log(bool.toString()); // false
+console.log(func.toString()); // 함수의 소스 코드가 전부 문자열로 반환됨.
 
 //////////////////////////////////////////////////////////////////////////
 
